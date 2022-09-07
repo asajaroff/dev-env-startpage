@@ -29,8 +29,10 @@ func main() {
 
 	e.POST("/v1/clusters/new", func(c echo.Context) error {
 		name := c.FormValue("vcluster-name")
+		log.Printf("Creating vcluster %s", name)
 		cmd, err := exec.Command("vcluster", "create", name).Output()
 		if err != nil {
+			log.Printf("%v", string(cmd))
 			log.Fatal(err)
 			return c.String(http.StatusUnprocessableEntity, "Our worker monkeys were unable to create your dev enviroment")
 		}
