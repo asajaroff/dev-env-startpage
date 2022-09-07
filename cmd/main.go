@@ -11,6 +11,19 @@ import (
 func main() {
 	// AWS credentials config
 
+	// Checks before starting the web server
+	path, err := exec.LookPath("helm")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(path)
+
+	path, err = exec.LookPath("vcluster")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(path)
+
 	// Bootstrap echo server
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
@@ -18,10 +31,10 @@ func main() {
 	})
 
 	e.GET("/v1/clusters/list", func(c echo.Context) error {
-		cmd, err := exec.Command("vcluster", "list").Output()
+		cmd, err := exec.Command("vcluster", "list", "--output=json").Output()
 		if err != nil {
 			log.Fatal(err)
-			return c.String(http.StatusUnprocessableEntity, "Our worker monkeys had trouble listing your clusters")
+			return c.String(http.StatusFailedDependency, "There was a problem fetching the clusters")
 		}
 		log.Println(string(cmd))
 		return c.String(http.StatusOK, "?")
@@ -30,7 +43,7 @@ func main() {
 	e.POST("/v1/clusters/new", func(c echo.Context) error {
 		name := c.FormValue("vcluster-name")
 		log.Printf("Creating vcluster %s", name)
-		cmd, err := exec.Command("vcluster", "create", name).Output()
+		cmd, err := exec.Command("vcluster", "create", name, "--connect=false").Output()
 		if err != nil {
 			log.Printf("%v", string(cmd))
 			log.Fatal(err)
