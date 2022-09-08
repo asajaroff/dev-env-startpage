@@ -52,6 +52,7 @@ func main() {
 			return c.String(http.StatusUnprocessableEntity, "Our worker monkeys were unable to create your dev enviroment")
 		}
 		log.Println(string(cmd))
+		log.Printf("%s", string(cmd))
 
 		return c.String(http.StatusOK, "Cluster created!")
 	})
